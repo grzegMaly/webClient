@@ -1,5 +1,6 @@
 package com.myproject.webclient.client;
 
+import com.myproject.webclient.model.BeerDTO;
 import com.myproject.webclient.model.CustomerDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.annotation.Order;
+import reactor.test.StepVerifier;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -135,5 +137,33 @@ class CustomerServiceImplTest {
                 });
 
         await().untilTrue(atomicBoolean);
+    }
+
+    @Test
+    @Order(9)
+    void testPatchCustomer() {
+
+        CustomerDTO testCustomer = CustomerDTO.builder().customerName("Jerry").build();
+
+        customerService.listCustomerDtos()
+                .next()
+                .flatMap(foundDto -> customerService.patchCustomer(foundDto.getId(), testCustomer))
+                .subscribe(updatedDto -> {
+                    System.out.println(updatedDto);
+                    atomicBoolean.set(true);
+                });
+
+        await().untilTrue(atomicBoolean);
+    }
+
+    @Test
+    @Order(10)
+    void testDeleteCustomer() {
+
+        customerService.listCustomerDtos()
+                .next()
+                .flatMap(foundDto -> customerService.deleteCustomer(foundDto.getId()))
+                .as(StepVerifier::create)
+                .verifyComplete();
     }
 }

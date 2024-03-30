@@ -92,4 +92,23 @@ public class CustomerServiceImpl implements CustomerService {
                 .toBodilessEntity()
                 .flatMap(voidResponseEntity -> getCustomerById(customerDTO.getId()));
     }
+
+    @Override
+    public Mono<CustomerDTO> patchCustomer(String customerId, CustomerDTO customerDTO) {
+
+        return webClient.patch().uri(CUSTOMER_PATH_ID, customerId)
+                .body(Mono.just(customerDTO), CustomerDTO.class)
+                .retrieve()
+                .toBodilessEntity()
+                .flatMap(voidResponseEntity -> getCustomerById(customerId));
+    }
+
+    @Override
+    public Mono<Void> deleteCustomer(String customerId) {
+
+        return webClient.delete().uri(CUSTOMER_PATH_ID, customerId)
+                .retrieve()
+                .toBodilessEntity()
+                .then();
+    }
 }
